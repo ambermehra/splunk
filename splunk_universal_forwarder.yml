@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  become: true
+  tasks:
+  - name: create splunk user
+    user:
+      name: splunk
+      uid: splunk
+      state: present
+
+  - name: download splunk rpm
+    get_url:
+      url: https://download.splunk.com/products/splunk/releases/7.1.6/linux/splunk-7.1.6-8f009a3f5353-linux-2.6-x86_64.rpm 
+      dest: /tmp/
+ 
+  - name: install splunk
+    yum:
+      name: /tmp/splunk-7.1.6-8f009a3f5353-linux-2.6-x86_64.rpm
+      state: present
+
+  - name: Accept License and enable init script
+    command: /opt/splunk/bin/splunk enable boot-start -user splunk --accept-license --no-prompt --seed-passwd 1Apnore2 
+    
+  - name: splunk restart 
+    service:
+      name: splunk
+      enabled: yes
+      state: restarted
+      daemon_reload: yes
+    tags: splunk restart
